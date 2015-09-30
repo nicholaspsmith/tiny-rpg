@@ -38,6 +38,8 @@
   var hero = {
     x: canvas.width/2,
     y: canvas.height-30,
+    height: 32,
+    width: 32,
     speed: 256 // pixels per second
   };
 
@@ -67,19 +69,23 @@
   var update = function (modifier) {
     if (38 in keysDown) {
       // Player holding up key
-      hero.y -= hero.speed * modifier;
+      if (hero.y > 0)
+        hero.y -= hero.speed * modifier;
     }
     if (40 in keysDown) {
       // Player holding down key
+      if (hero.y < 480-hero.height)
       hero.y += hero.speed * modifier;
     }
     if (37 in keysDown) {
       // Left
-      hero.x -= hero.speed * modifier;
+      if (hero.x > 0)
+        hero.x -= hero.speed * modifier;
     }
     if (39 in keysDown) {
       // Right
-      hero.x += hero.speed * modifier;
+      if (hero.x < 512-hero.width)
+        hero.x += hero.speed * modifier;
     }
 
     if (
