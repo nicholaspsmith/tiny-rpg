@@ -20,7 +20,7 @@
 
     // Randomly place a monster
     monster.x = 32 + (Math.random() * (canvas.width - 64));
-  	monster.y = 32 + (Math.random() * (canvas.height - 64));
+    monster.y = 32 + (Math.random() * (canvas.height - 64));
   }
 
   var game = {
@@ -29,19 +29,25 @@
   };
 
   // Hero
-  var heroReady = false;
-  var heroImage = new Image();
-  heroImage.onload = function () {
-    heroReady = true;
-  };
-  heroImage.src = "images/hero.png";
   var hero = {
+    ready: true,
+    images: {
+      left: new Sprite('images/party.png', [12,16], [14,18], 1, [0,1], 'vertical'),
+      right: new Sprite('images/party.png', [14,18], [14,18], 1, [2,3], 'vertical'),
+      up: new Sprite('images/party.png', [14,18], [14,18], 1, [4,5], 'vertical'),
+      down: new Sprite('images/party.png', [14,20], [14,18], 1, [6,7], 'vertical'),
+    },
     x: canvas.width/2,
     y: canvas.height-30,
     height: 32,
     width: 32,
     speed: 256 // pixels per second
   };
+
+  resources.load([
+    'images/party.png'
+  ]);
+  resources.onReady(init);
 
   // Monster
   var monsterReady = false;
@@ -65,27 +71,30 @@
     delete keysDown[e.keyCode];
   }, false);
 
-
   var update = function (modifier) {
     if (38 in keysDown) {
       // Player holding up key
       if (hero.y > 0)
-        hero.y -= hero.speed * modifier;
+      hero.y -= hero.speed * modifier;
+      hero.images.up.update(modifier);
     }
     if (40 in keysDown) {
       // Player holding down key
       if (hero.y < 480-hero.height)
       hero.y += hero.speed * modifier;
+      hero.images.down.update(modifier);
     }
     if (37 in keysDown) {
       // Left
       if (hero.x > 0)
-        hero.x -= hero.speed * modifier;
+      hero.x -= hero.speed * modifier;
+      hero.images.left.update(modifier);
     }
     if (39 in keysDown) {
       // Right
       if (hero.x < 512-hero.width)
-        hero.x += hero.speed * modifier;
+      hero.x += hero.speed * modifier;
+      hero.images.right.update(modifier);
     }
 
     if (
@@ -97,14 +106,22 @@
       ++monstersCaught;
       reset();
     }
+
+    // need to limit framerate...
   };
 
   var render = function () {
     if (bgReady) {
       ctx.drawImage(bgImage,0,0);
     }
-    if (heroReady) {
-      ctx.drawImage(heroImage,hero.x,hero.y);
+    if (hero.ready) {
+      // ctx.drawImage(hero.image,hero.x,hero.y);
+
+      // need to limit framerate and
+      // need to save current direction of Player
+      // and use that to determine which sprite to render
+      // (player will not always be moving)
+      hero.images.left.render(ctx);
     }
     if (monsterReady) {
       ctx.drawImage(monsterImage,monster.x,monster.y);
@@ -116,11 +133,11 @@
     ctx.fillText("Monsters caught: " + monstersCaught, 32, 32);
   };
 
-  var main = function () {
+  var main = function (then) {
     var now = Date.now();
     var delta = now - then;
-
-    update(delta / 1000);
+    var dt = (delta / 1000);
+    update(dt);
     render();
 
     then = now;
@@ -128,8 +145,11 @@
     requestAnimationFrame(main);
   }
 
-  var then = Date.now();
-  reset();
-  main();
+  function init() {
+    var then = Date.now();
+    hero.ready = true;
+    reset();
+    main(then);
+  }
 
 })()
