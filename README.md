@@ -2,9 +2,9 @@ Just a Tiny RPG
 =========
 
 Todo:
- animated sprites
- move between locations 
- combat
+* animated sprites
+* move between locations
+* basic combat
 
 
 
