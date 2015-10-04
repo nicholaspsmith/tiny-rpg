@@ -1,4 +1,17 @@
 (function(){
+  // A cross-browser requestAnimationFrame
+  // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
+  var requestAnimFrame = (function(){
+    return window.requestAnimationFrame       ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    window.oRequestAnimationFrame      ||
+    window.msRequestAnimationFrame     ||
+    function(callback){
+      window.setTimeout(callback, 1000 / 60);
+    };
+  })();
+
   // Create Canvas
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
@@ -42,7 +55,7 @@
     y: canvas.height-30,
     height: 20,
     width: 14,
-    speed: 256 // pixels per second
+    speed: 128 // pixels per tick
   };
 
   resources.load([
@@ -75,31 +88,35 @@
   var update = function (modifier) {
     if (38 in keysDown) {
       // Player holding up key
-      if (hero.y > 0)
-      hero.y -= hero.speed * modifier;
-      hero.images.up.update(modifier);
-      hero.dir = 'up';
+      if (hero.y > 0) {
+        hero.y -= hero.speed * modifier;
+        hero.images.up.update(modifier);
+        hero.dir = 'up';
+      }
     }
     if (40 in keysDown) {
       // Player holding down key
-      if (hero.y < 480-hero.height)
-      hero.y += hero.speed * modifier;
-      hero.images.down.update(modifier);
-      hero.dir = 'down';
+      if (hero.y < 480-hero.height) {
+        hero.y += hero.speed * modifier;
+        hero.images.down.update(modifier);
+        hero.dir = 'down';
+      }
     }
     if (37 in keysDown) {
       // Left
-      if (hero.x > 0)
-      hero.x -= hero.speed * modifier;
-      hero.images.left.update(modifier);
-      hero.dir = 'left';
+      if (hero.x > 0) {
+        hero.x -= hero.speed * modifier;
+        hero.images.left.update(modifier);
+        hero.dir = 'left';
+      }
     }
     if (39 in keysDown) {
       // Right
-      if (hero.x < 512-hero.width)
-      hero.x += hero.speed * modifier;
-      hero.images.right.update(modifier);
-      hero.dir = 'right';
+      if (hero.x < 512-hero.width) {
+        hero.x += hero.speed * modifier;
+        hero.images.right.update(modifier);
+        hero.dir = 'right';
+      }
     }
 
     if (
@@ -155,49 +172,22 @@
     ctx.fillText("Monsters caught: " + monstersCaught, 32, 32);
   };
 
-  var main = function (then) {
+  var main = function () {
+    then = typeof then !== 'undefined' ? then : Date.now();
     var now = Date.now();
-    var delta = now - then;
-    var dt = (delta / 1000);
+    var dt = (now - then) / 1000;
+
     update(dt);
     render();
 
     then = now;
+    requestAnimFrame(main);
   }
 
-  var frameLimiter = function (fn, fps) {
-
-    // Use var then = Date.now(); if you
-    // don't care about targetting < IE9
-    var then = new Date().getTime();
-
-    // custom fps, otherwise fallback to 60
-    fps = fps || 60;
-    var interval = 1000 / fps;
-
-    return (function loop(time){
-      requestAnimationFrame(loop);
-      // again, Date.now() if it's available
-      var now = new Date().getTime();
-      var delta = now - then;
-
-      if (delta > interval) {
-        // Update time
-        // now - (delta % interval) is an improvement over just
-        // using then = now, which can end up lowering overall fps
-        then = now - (delta % interval);
-
-        // call the fn
-        main(then);
-      }
-    }(0));
-  };
-
   function init() {
-    var then = Date.now();
     hero.ready = true;
     reset();
-    frameLimiter();
+    main();
   }
 
 })()
