@@ -37,6 +37,7 @@
       up: new Sprite('images/party.png', [14,18], [14,18], 1, [4,5], 'vertical'),
       down: new Sprite('images/party.png', [14,20], [14,18], 1, [6,7], 'vertical'),
     },
+    dir: 'left',
     x: canvas.width/2,
     y: canvas.height-30,
     height: 32,
@@ -77,24 +78,28 @@
       if (hero.y > 0)
       hero.y -= hero.speed * modifier;
       hero.images.up.update(modifier);
+      hero.dir = 'up';
     }
     if (40 in keysDown) {
       // Player holding down key
       if (hero.y < 480-hero.height)
       hero.y += hero.speed * modifier;
       hero.images.down.update(modifier);
+      hero.dir = 'down';
     }
     if (37 in keysDown) {
       // Left
       if (hero.x > 0)
       hero.x -= hero.speed * modifier;
       hero.images.left.update(modifier);
+      hero.dir = 'left';
     }
     if (39 in keysDown) {
       // Right
       if (hero.x < 512-hero.width)
       hero.x += hero.speed * modifier;
       hero.images.right.update(modifier);
+      hero.dir = 'right';
     }
 
     if (
@@ -117,11 +122,21 @@
     if (hero.ready) {
       // ctx.drawImage(hero.image,hero.x,hero.y);
 
-      // need to limit framerate and
-      // need to save current direction of Player
-      // and use that to determine which sprite to render
-      // (player will not always be moving)
-      hero.images.left.render(ctx);
+      // need to limit framerate
+      switch(hero.dir) {
+        case 'left':
+          hero.images.left.render(ctx);
+          break;
+        case 'right':
+          hero.images.right.render(ctx);
+          break;
+        case 'up':
+          hero.images.up.render(ctx);
+          break;
+        case 'down':
+          hero.images.down.render(ctx);
+          break;
+      }
     }
     if (monsterReady) {
       ctx.drawImage(monsterImage,monster.x,monster.y);
