@@ -29,19 +29,19 @@
   };
 
   // Hero
-  var hero = {
+  window.hero = {
     ready: true,
     images: {
-      left: new Sprite('images/party.png', [12,16], [14,18], 1, [0,1], 'vertical'),
-      right: new Sprite('images/party.png', [14,18], [14,18], 1, [2,3], 'vertical'),
-      up: new Sprite('images/party.png', [14,18], [14,18], 1, [4,5], 'vertical'),
-      down: new Sprite('images/party.png', [14,20], [14,18], 1, [6,7], 'vertical'),
+      left: new Sprite('images/party.png', [12,16], [14,18], 22, [0,1], 'vertical'),
+      right: new Sprite('images/party.png', [14,18], [14,18], 22, [2,3], 'vertical'),
+      up: new Sprite('images/party.png', [14,18], [14,18], 22, [4,5], 'vertical'),
+      down: new Sprite('images/party.png', [14,20], [14,18], 22, [6,7], 'vertical'),
     },
     dir: 'left',
     x: canvas.width/2,
     y: canvas.height-30,
-    height: 32,
-    width: 32,
+    height: 20,
+    width: 14,
     speed: 256 // pixels per second
   };
 
@@ -111,8 +111,6 @@
       ++monstersCaught;
       reset();
     }
-
-    // need to limit framerate...
   };
 
   var render = function () {
@@ -120,22 +118,31 @@
       ctx.drawImage(bgImage,0,0);
     }
     if (hero.ready) {
-      // ctx.drawImage(hero.image,hero.x,hero.y);
-
-      // need to limit framerate
       switch(hero.dir) {
         case 'left':
-          hero.images.left.render(ctx);
-          break;
+        ctx.save();
+        ctx.translate(hero.x,hero.y);
+        hero.images.left.render(ctx);
+        ctx.restore();
+        break;
         case 'right':
-          hero.images.right.render(ctx);
-          break;
+        ctx.save();
+        ctx.translate(hero.x,hero.y);
+        hero.images.right.render(ctx);
+        ctx.restore();
+        break;
         case 'up':
-          hero.images.up.render(ctx);
-          break;
+        ctx.save();
+        ctx.translate(hero.x,hero.y);
+        hero.images.up.render(ctx);
+        ctx.restore();
+        break;
         case 'down':
-          hero.images.down.render(ctx);
-          break;
+        ctx.save();
+        ctx.translate(hero.x,hero.y);
+        hero.images.down.render(ctx);
+        ctx.restore();
+        break;
       }
     }
     if (monsterReady) {
@@ -156,15 +163,41 @@
     render();
 
     then = now;
-
-    requestAnimationFrame(main);
   }
+
+  var frameLimiter = function (fn, fps) {
+
+    // Use var then = Date.now(); if you
+    // don't care about targetting < IE9
+    var then = new Date().getTime();
+
+    // custom fps, otherwise fallback to 60
+    fps = fps || 60;
+    var interval = 1000 / fps;
+
+    return (function loop(time){
+      requestAnimationFrame(loop);
+      // again, Date.now() if it's available
+      var now = new Date().getTime();
+      var delta = now - then;
+
+      if (delta > interval) {
+        // Update time
+        // now - (delta % interval) is an improvement over just
+        // using then = now, which can end up lowering overall fps
+        then = now - (delta % interval);
+
+        // call the fn
+        main(then);
+      }
+    }(0));
+  };
 
   function init() {
     var then = Date.now();
     hero.ready = true;
     reset();
-    main(then);
+    frameLimiter();
   }
 
 })()
