@@ -30,7 +30,10 @@
   var reset = function () {
     hero.x = canvas.width / 2;
     hero.y = canvas.height / 2;
+    placeMonster();
+  }
 
+  var placeMonster = function () {
     // Randomly place a monster
     monster.x = 32 + (Math.random() * (canvas.width - 64));
     monster.y = 32 + (Math.random() * (canvas.height - 64));
@@ -74,7 +77,7 @@
     x: 0,
     y: 0
   };
-  var monstersCaught = 0;
+  var monstersSlayed = 0;
 
   // User Input
   var keysDown = {};
@@ -125,8 +128,8 @@
       && hero.y <= (monster.y + 32)
       && monster.y <= (hero.y + 32)
     ) {
-      ++monstersCaught;
-      reset();
+      ++monstersSlayed;
+      placeMonster();
     }
   };
 
@@ -166,22 +169,22 @@
       ctx.drawImage(monsterImage,monster.x,monster.y);
     }
     ctx.fillStyle = "rgba(250,250,250,1)";
-    ctx.font = "24px Helvetica";
+    ctx.font = "14px Arial";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    ctx.fillText("Monsters caught: " + monstersCaught, 32, 32);
+    ctx.fillText("Monsters slayed: " + monstersSlayed, 32, 32);
   };
 
   var main = function () {
-    then = typeof then !== 'undefined' ? then : Date.now();
-    var now = Date.now();
+    requestAnimFrame(main);
+    then = typeof then !== 'undefined' ? then : window.performance.now();
+    var now = window.performance.now();
     var dt = (now - then) / 1000;
 
     update(dt);
     render();
 
     then = now;
-    requestAnimFrame(main);
   }
 
   function init() {
