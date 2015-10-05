@@ -2,9 +2,10 @@ Just a Tiny RPG
 =========
 
 Todo:
-* animated sprites
-* move between locations
+* create map
+* move between map locations
 * basic combat
+* make enemy move toward player
 
 
 
